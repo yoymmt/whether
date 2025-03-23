@@ -27,37 +27,39 @@
     <div id="time"></div>
     <div id="weather"></div>
 
-    <script>
-        function updateTime() {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString();
-            document.getElementById('time').textContent = `現在時刻: ${timeString}`;
-        }
+<script>
+    // --- 時刻の表示（分まで） ---
+    function updateTime() {
+        const now = new Date();
+        const hours = now.getHours().toString().padStart(2, '0');
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        const timeString = `${hours}:${minutes}`;
+        document.getElementById('time').textContent = `現在時刻: ${timeString}`;
+    }
 
-        async function updateWeather() {
-            const apiKey = '3d50cf5f83aa07a17f333439bfbd252c'; // ここにAPIキーを入力
-            const city = 'Kiyosu'; // ここに都市名を入力
-            try {
-                const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&lang=ja&units=metric`);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const data = await response.json();
-                const weatherString = `名古屋の天気: ${data.weather[0].description}, 気温: ${data.main.temp}°C`;
-                document.getElementById('weather').textContent = weatherString;
-            } catch (error) {
-                console.error('Error fetching weather data:', error);
-                document.getElementById('weather').textContent = '天気情報を取得できませんでした。';
-            }
+    // --- 天気の取得（OpenWeather） ---
+    async function updateWeather() {
+        const apiKey = 'あなたのAPIキー'; // 新しいキーにしてもOK
+        const city = 'Nagoya'; // ここはお好みで
+        try {
+            const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&lang=ja&units=metric`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const data = await response.json();
+            const weatherString = `${data.name}の天気: ${data.weather[0].description}, 気温: ${data.main.temp}°C`;
+            document.getElementById('weather').textContent = weatherString;
+        } catch (error) {
+            console.error('天気取得エラー:', error);
+            document.getElementById('weather').textContent = '天気情報を取得できませんでした。';
         }
+    }
 
-        // ページ読み込み時に現在時刻と天気情報を更新
-        window.onload = function() {
-            updateTime();
-            updateWeather();
-            // 現在時刻を1秒ごとに更新
-            setInterval(updateTime,6000);
-        };
-    </script>
+    // --- 初期化 & インターバル設定 ---
+    window.onload = function () {
+        updateTime();
+        updateWeather();
+        setInterval(updateTime, 60000);       // 毎分時刻を更新
+        setInterval(updateWeather, 60000);    // 天気情報も60秒ごとに更新
+    };
+</script>
 </body>
 </html>
